@@ -37,7 +37,7 @@ int* LineMandelCalculator::calculateMandelbrot() {
     __m256 cmp_vec = _mm256_set1_ps(4); // for comapring
     __m256 one_vec = _mm256_set1_ps(1);
     int *pdata = data;
-    #pragma omp parallel for schedule(dynamic, 1)
+
     for (int i = 0; i < height; i++)
 	{   
         __m256 i_vec = _mm256_set1_ps(i);
@@ -55,33 +55,25 @@ int* LineMandelCalculator::calculateMandelbrot() {
         int iter = 1;
         __m256 iter_vec = _mm256_set1_ps(iter);
 
-        // count iterations for cells in vectors
-        __m256 r2_vec =  _mm256_mul_ps(x_real_vec, x_real_vec);
-        __m256 i2_vec =  _mm256_mul_ps(y_img_vec, y_img_vec);
+    
+       for (; iter < limit; iter++) {
+            // count iterations for cells in vectors
+            __m256 r2_vec =  _mm256_mul_ps(x_real_vec, x_real_vec);
+            __m256 i2_vec =  _mm256_mul_ps(y_img_vec, y_img_vec);
 
-        __m256 r2_i2_vec = _mm256_add_ps(r2_vec, i2_vec);
-        // create vector with comparising values from vector of r^2 + i^2 compared with vector of 4
-        __m256 mask = _mm256_cmp_ps(r2_i2_vec, cmp_vec, _CMP_LT_OS);
-
-        #pragma omp simd
-        for (; !_mm256_testz_ps(mask, _mm256_set1_ps(-1)) && iter < limit; iter++) {
-            r2_vec =  _mm256_mul_ps(x_real_vec, x_real_vec);
-            i2_vec =  _mm256_mul_ps(y_img_vec, y_img_vec);
-
-            r2_i2_vec = _mm256_add_ps(r2_vec, i2_vec);
-            
+            __m256 r2_i2_vec = _mm256_add_ps(r2_vec, i2_vec);
             // create vector with comparising values from vector of r^2 + i^2 compared with vector of 4
-            mask = _mm256_cmp_ps(r2_i2_vec, cmp_vec, _CMP_LT_OS);
-            
+            __m256 mask = _mm256_cmp_ps(r2_i2_vec, cmp_vec, _CMP_LT_OS);
             // find in which cell count of iterations should be updated
             __m256 mask_and_one_vec= _mm256_and_ps(mask, one_vec);
             
             // increment values in vector of iterations
             iter_vec = _mm256_add_ps(mask_and_one_vec, iter_vec);
+            if (_mm256_testz_ps(mask, _mm256_set1_ps(-1))) break;
         }
         __m256i iters_int_vec = _mm256_cvtps_epi32(iter_vec);
         _mm256_store_si256((__m256i *)pdata, iters_int_vec);
-        pdata += width; // move pointer to fill next line
+        pdata += width; // move pointer to the next line
 	}
     return data;
 }
