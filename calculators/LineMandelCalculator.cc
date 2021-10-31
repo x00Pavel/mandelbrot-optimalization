@@ -26,40 +26,36 @@ LineMandelCalculator::~LineMandelCalculator() {
     data = NULL;
 }
 
+#pragma omp declare simd
+template <typename T>
+static inline int mandel(T real, T imag, int limit) {
+    T zReal = real;
+    T zImag = imag;
+    int iters;
+    for (iters = 0; ((zReal * zReal + zImag * zImag) > 4.0f) && (iters < limit);
+         iters++) {
+        T r2 = zReal * zReal;
+        T i2 = zImag * zImag;
+        zImag = 2.0f * zReal * zImag + imag;
+        zReal = r2 - i2 + real;
+    }
+
+    return iters;
+}
+
 int* LineMandelCalculator::calculateMandelbrot() {
 // @TODO implement the calculator & return array of integers
 	int *pdata = data;
+    #pragma omp parallel
     for (int i = 0; i < height; i++)
 	{
-        // current_line = &data[i];
-        float y = y_start + i * dy; // current img valu
-        float imag  = y;
-
+        float y = y_start + i * dy; // current img value
+        
         #pragma omp simd
 		for (int j = 0; j < width; j++)
 		{
-			float x = x_start + j * dx; // current real valu
-			float real = x;
-            int iter;
-	
-			for (iter = 0; iter < 100; iter++) {
-                // have a vector of x's
-                // have a vector of y's
-                // have a vector of imag values
-                // have a vector of real values
-                // count vector of values with this r2 + i2 > 4.0f
-                float r2 = x * x;
-				float i2 = y * y;
-				if (r2 + i2 > 4.0f)
-				{
-					break;
-				}
-
-				imag = 2.0f * real * imag + y;
-				real = r2 - i2 + x;
-            }
-
-            *(pdata++) = iter;
+			float x = x_start + j * dx; // current real value
+            *(pdata++) = mandel(x, y, limit);
         }
 	}
     return data;

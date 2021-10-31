@@ -9,6 +9,7 @@
 #include <vector>
 #include <algorithm>
 
+
 #include "RefMandelCalculator.h"
 
 RefMandelCalculator::RefMandelCalculator(unsigned matrixBaseSize, unsigned limit) : BaseMandelCalculator(matrixBaseSize, limit, "RefMandelCalculator")
@@ -45,12 +46,13 @@ static inline int mandelbrot(T real, T imag, int limit)
 int *RefMandelCalculator::calculateMandelbrot()
 {
 	int *pdata = data;
+
 	for (int i = 0; i < height; i++)
 	{
+		float y = y_start + i * dy; // current imaginary value
 		for (int j = 0; j < width; j++)
 		{
 			float x = x_start + j * dx; // current real value
-			float y = y_start + i * dy; // current imaginary value
 
 			int value = mandelbrot(x, y, limit);
 
