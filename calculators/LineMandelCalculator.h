@@ -16,5 +16,5 @@ class LineMandelCalculator : public BaseMandelCalculator {
 
    private:
     int *data;
-    int *current_line;
+    float *current_line;
 };
