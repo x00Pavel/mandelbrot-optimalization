@@ -16,5 +16,7 @@ class LineMandelCalculator : public BaseMandelCalculator {
 
    private:
     int *data;
-    float *current_line;
+    int *x_vec;
+    float *r2_vec __attribute__ ((aligned (32)));
+    float *i2_vec __attribute__ ((aligned (32)));
 };
