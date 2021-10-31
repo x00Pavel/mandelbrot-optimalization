@@ -19,7 +19,6 @@ LineMandelCalculator::LineMandelCalculator(unsigned matrixBaseSize,
                                            unsigned limit)
     : BaseMandelCalculator(matrixBaseSize, limit, "LineMandelCalculator") {
     data = (int*)(malloc(height * width * sizeof(int)));
-    current_line = NULL;
 }
 
 LineMandelCalculator::~LineMandelCalculator() {
@@ -33,7 +32,8 @@ int* LineMandelCalculator::calculateMandelbrot() {
     __m256 dx_vec = _mm256_set1_ps(dx);  // vector of dx values
     __m256 dy_vec = _mm256_set1_ps(dy); // vector of dy values
     __m256 cmp_vec = _mm256_set1_ps(4); // for comapring
-
+    __m256 one_vec = _mm256_set1_ps(1);
+    int *pdata = data;
     for (int i = 0; i < height; i++)
 	{   
         __m256 i_vec = _mm256_set1_ps(i);
@@ -46,25 +46,34 @@ int* LineMandelCalculator::calculateMandelbrot() {
             __m256 j_dx_vec = _mm256_mul_ps(j_vec, dx_vec);
             __m256 x_real_vec = _mm256_add_ps(i_dy_vec, y_start_vec);
 
-			float x = x_start + j * dx; // current real value
-			float real = x;
-            int iter;
-	
-			for (iter = 0; iter < limit; iter++) {
-                float r2 = x * x;
-				float i2 = y * y;
-				// if (r2 + i2 > 4.0f)
-				// {
-				// 	break;
-				// }
-                __m256 r2_i2 = _mm256_add_ps(zr2, zi2);
-                __m256 mask = _mm256_cmp_ps(r2_i2, cmp_vec, _CMP_LT_OS);
+            int iter = 1;
+            __m256 iter_vec = _mm256_set1_ps(iter);
+
+            // count iterations for cells in vectors
+			for (; iter < limit; iter++) {
+                __m256 r2_vec =  _mm256_mul_ps(x_real_vec, x_real_vec);
+                __m256 i2_vec =  _mm256_mul_ps(y_img_vec, y_img_vec);
+
+                __m256 r2_i2_vec = _mm256_add_ps(r2_vec, i2_vec);
+                
+                // create vector with comparising values from vector of r^2 + i^2 compared with vector of 4
+                __m256 mask = _mm256_cmp_ps(r2_i2_vec, cmp_vec, _CMP_LT_OS);
+                
+                // find in which cell count of iterations should be updated
+                __m256 mask_and_one_vec= _mm256_and_ps(mask, one_vec);
+                
+                // increment values in vector of iterations
+                iter_vec = _mm256_add_ps(mask_and_one_vec, iter_vec);
+                
                 if (_mm256_testz_ps(mask, _mm256_set1_ps(-1))) break; // stops iteration
                 // imag = 2.0f * real * imag + y;
 				// real = r2 - i2 + x;
             }
-
-            // *(pdata++) = iter;
+            __m256i iters_int_vec = _mm256_cvtps_epi32(iter_vec);
+            int *iters_int_array = (int *)&iters_int_vec;
+            for (int i = 0; i < 8; i++) {
+                *(pdata++) = iters_int_array[i];
+            }
         }
 	}
     return data;
