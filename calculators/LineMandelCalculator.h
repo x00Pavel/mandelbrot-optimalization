@@ -19,4 +19,6 @@ class LineMandelCalculator : public BaseMandelCalculator {
     int *x_vec;
     float *r2_vec __attribute__ ((aligned (32)));
     float *i2_vec __attribute__ ((aligned (32)));
+    float *zReal_vec __attribute__((aligned(32)));
+    float *zImag_vec __attribute__((aligned(32)));
 };
