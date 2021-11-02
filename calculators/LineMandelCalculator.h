@@ -14,9 +14,13 @@ class LineMandelCalculator : public BaseMandelCalculator {
     ~LineMandelCalculator();
     int *calculateMandelbrot();
 
+   protected:
+    void resetInitial(int line_number);
+
    private:
     int *data;
     int *initial_real_vec __attribute__((aligned(32)));
+    int *initial_imag_vec __attribute__((aligned(32)));
     float *current_real_vec __attribute__((aligned(32)));
     float *current_img_vec __attribute__((aligned(32)));
 };
