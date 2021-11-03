@@ -1,8 +1,8 @@
 #!/bin/bash
 #PBS -q qexp
-#PBS -A OPEN-20-37
+#PBS -A DD-21-22
 #PBS -l select=1:ncpus=36,vtune=2020_update3-GCC 
-#PBS -l walltime=0:05:00
+#PBS -l walltime=0:15:00
 #PBS -m e
 #PBS -N AVS-evaluate
 
