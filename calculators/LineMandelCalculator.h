@@ -13,7 +13,6 @@ class LineMandelCalculator : public BaseMandelCalculator {
     LineMandelCalculator(unsigned matrixBaseSize, unsigned limit);
     ~LineMandelCalculator();
     int *calculateMandelbrot();
-    void mandel(float initial_imag, int iter, int i, int *pdata);
 
    private:
     bool gt_4;

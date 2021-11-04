@@ -21,7 +21,7 @@ LineMandelCalculator::LineMandelCalculator(unsigned matrixBaseSize,
     data = (int*)(malloc(height * width * sizeof(int))); // allocate aligned memory
     current_real_vec = (float *)(malloc(width * sizeof(float)));  
     current_img_vec = (float *)(malloc(width * sizeof(float)));
-    for (int i = 0; i < width * height; i++){
+    for (int i = 0; i < width * height; i++) {
         data[i] = limit;
     }
 }
@@ -38,33 +38,6 @@ LineMandelCalculator::~LineMandelCalculator() {
     
 }
 
-void LineMandelCalculator::mandel(float initial_imag, int iter, int i, int *pdata){
-    #pragma omp simd reduction(|: gt_4) simdlen(64)
-	for (int j = 0; j < width; j++) {
-	    float initial_real = x_start + j * dx;
-
-        float current_img = (iter == 0) ? initial_imag : current_img_vec[j];
-		float current_real = (iter == 0) ? initial_real : current_real_vec[j];
-
-        float i2 = current_img * current_img;
-        float r2 = current_real * current_real;
-        // if greater then 4 and cell is not set
-        bool gt = ((r2 + i2) > 4.0f) && (pdata[j + i * width] == limit);
-        gt_4 |= gt;
-
-        // update values from the next iteration with values form
-        // current iteration
-        if (gt) {
-            pdata[i * width + j] = iter;
-        } else {
-            current_img_vec[j] =
-                2.0f * current_img * current_real + initial_imag;
-            current_real_vec[j] = r2 - i2 + initial_real;
-        }
-    }
-}
-
-// pragma omp reduction(operation:value where result will be stored)
 int* LineMandelCalculator::calculateMandelbrot()
 {
    	int *pdata = data;
@@ -72,10 +45,33 @@ int* LineMandelCalculator::calculateMandelbrot()
     for (int i = 0; i < height; i++) {
         // this value is used in current iteration and do not change
         float initial_imag = y_start + i * dy;
-        gt_4 = true;
-        
+
+        bool gt_4 = true;
+
         for (int iter = 0; gt_4 && (iter < limit); iter++) {
-			mandel(initial_imag, iter, i, pdata);
+#pragma omp simd reduction(| : gt_4) simdlen(64)
+            for (int j = 0; j < width; j++) {
+                float initial_real = x_start + j * dx;
+                float current_real =
+                    (iter == 0) ? initial_real : current_real_vec[j];
+                float current_img =
+                    (iter == 0) ? initial_imag : current_img_vec[j];
+
+                float i2 = current_img * current_img;
+                float r2 = current_real * current_real;
+                // if greater then 4 and cell is not set
+                gt_4 |= ((r2 + i2) > 4.0f);
+
+                // update values from the next iteration with values form
+                // current iteration
+                if ((r2 + i2) > 4.0f) {
+                    if ((pdata[j + i * width] == limit))
+                        pdata[i * width + j] = iter;
+                } else {
+                    current_img_vec[j] = 2.0f * current_img * current_real + initial_imag;
+                    current_real_vec[j] = r2 - i2 + initial_real;
+                }
+            }
         }
     }
     return data;
