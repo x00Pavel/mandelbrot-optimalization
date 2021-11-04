@@ -20,7 +20,9 @@ public:
 private:
     bool gt_4;
     int block_size;
+    int count_of_blocks;
     int *data;
+    int **block_pointers __attribute__((aligned(64)));
     float *current_real_vec __attribute__((aligned(64)));
     float *current_img_vec __attribute__((aligned(64)));
 };
