@@ -2,20 +2,27 @@
 
 1. Proč je nutné určovat, zda má výpočet pokračovat?
 ==============================================================================
-
+Protoze jinak by hodnoty mohli presahnout sirku datoveho typo pouziteho pro 
+vypocet
 
 2. Byla "Line" vektorizace efektivní? Proč?
 ==============================================================================
-
+Ano, byla. Protoze operace pro kazdou iteraci byla provadena pomoci vektoru.
+Pomoci toho, ze jsme meli vice dat na jednou (vyhodnoceni podminky i2 + r2 > 4.0f)
+a to pro cely radek, tak mohli jsme urcit je-li vubec zapotreby vypocitat dalsi
+iteraci   
 
 3. Jaká byla dosažena výkonnost v Intel Advisoru pro jednotlivé implementace 
 (v GFLOPS)?
 ==============================================================================
-
+Ref: 2.23
+Line: 15,66
+Batch: 
 
 4. Jaká část kódu byla paralizována v "Line" implementaci? Vyčteme tuto 
 informaci i u batch kalkulátoru?
 ==============================================================================
+Line: 
 
 
 5. Co vyčteme z Roofline modelu pro obě vektorizované implementace?
