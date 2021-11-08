@@ -20,6 +20,8 @@ public:
 private:
     size_t block_size;
     int *data;
+    int *initial_real __attribute__((aligned(64)));
+    int *initial_imag __attribute__((aligned(64)));
     float *current_real_vec __attribute__((aligned(64)));
     float *current_img_vec __attribute__((aligned(64)));
 };

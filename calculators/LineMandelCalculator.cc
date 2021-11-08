@@ -19,10 +19,24 @@ LineMandelCalculator::LineMandelCalculator(unsigned matrixBaseSize,
                                            unsigned limit)
     : BaseMandelCalculator(matrixBaseSize, limit, "LineMandelCalculator") {
     data = (int*)(malloc(height * width * sizeof(int))); // allocate aligned memory
-    current_real_vec = (float *)(malloc(width * sizeof(float)));  
+    initial_real = (int *)(malloc(width * sizeof(int)));
+    initial_imag = (int *)(malloc(height * sizeof(int)));
+    current_real_vec = (float *)(malloc(width * sizeof(float)));
     current_img_vec = (float *)(malloc(width * sizeof(float)));
-    for (int i = 0; i < height * width; i++) {
-        data[i] = limit;
+    int i;
+
+#pragma omp simd linear(data : 1) simdlen(64)
+    for (i = 0; i < height * width; i++) {
+            data[i] = limit;
+    }
+#pragma omp simd linear(initial_real : 1) simdlen(64)
+    for (i = 0; i < width; i++) {
+        initial_real[i] = x_start + i * dx;
+    }
+
+#pragma omp simd linear(initial_imag : 1) simdlen(64)
+    for (i = 0; i < height; i++){
+        initial_imag[i] = y_start + i * dy;
     }
 }
 
@@ -35,7 +49,12 @@ LineMandelCalculator::~LineMandelCalculator() {
 
     free(current_img_vec);
     current_img_vec = NULL;
-    
+
+    free(initial_imag);
+    initial_imag = NULL;
+
+    free(initial_real);
+    initial_real = NULL;
 }
 
 int* LineMandelCalculator::calculateMandelbrot()
@@ -44,30 +63,28 @@ int* LineMandelCalculator::calculateMandelbrot()
 
     for (int i = 0; i < height; i++) {
         // this value is used in current iteration and do not change
-        float initial_imag = y_start + i * dy;
-
-        bool gt_4 = true;
-
-        for (int iter = 0; gt_4 && (iter < limit); iter++) {
-#pragma omp simd reduction(| : gt_4) simdlen(64) aligned(pdata:64)
+        bool gt_4 = false;
+        for (int iter = 0; !gt_4 && (iter < limit); iter++) {
+#pragma omp simd reduction(& : gt_4) simdlen(64) aligned(pdata:64)
             for (int j = 0; j < width; j++) {
-    
-                float initial_real = x_start + j * dx;
-                float current_real = (iter == 0) ? initial_real : current_real_vec[j];
-                float current_img = (iter == 0) ? initial_imag : current_img_vec[j];
+                float current_real =
+                    (iter == 0) ? initial_real[j] : current_real_vec[j];
+                float current_img =
+                    (iter == 0) ? initial_imag[i] : current_img_vec[j];
 
                 float i2 = current_img * current_img;
                 float r2 = current_real * current_real;
                 // if greater then 4 and cell is not set
-                gt_4 |= ((r2 + i2) > 4.0f);
+                gt_4 &= ((r2 + i2) > 4.0f);
 
                 // update values from the next iteration with values form
                 // current iteration
                  if ((r2 + i2) > 4.0f && (pdata[i * width + j] == limit)) {
                         pdata[i * width + j] = iter;
                 } else {
-                    current_img_vec[j] = 2.0f * current_img * current_real + initial_imag;
-                    current_real_vec[j] = r2 - i2 + initial_real;
+                    current_img_vec[j] =
+                        2.0f * current_img * current_real + initial_imag[i];
+                    current_real_vec[j] = r2 - i2 + initial_real[j];
                 }
             }
         }
