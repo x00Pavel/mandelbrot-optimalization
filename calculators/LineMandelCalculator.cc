@@ -19,14 +19,10 @@ LineMandelCalculator::LineMandelCalculator(unsigned matrixBaseSize,
                                            unsigned limit)
     : BaseMandelCalculator(matrixBaseSize, limit, "LineMandelCalculator") {
     data = (int*)(malloc(height * width * sizeof(int))); // allocate aligned memory
-    current_real_vec = (float *)(malloc(height * width * sizeof(float)));  
-    current_img_vec = (float *)(malloc(height * width * sizeof(float)));
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++){
-            data[i * width + j] = limit;
-            current_real_vec[i * width + j] = x_start + j * dx;
-            current_img_vec[i * width + j] = y_start + i * dy;
-        }
+    current_real_vec = (float *)(malloc(width * sizeof(float)));  
+    current_img_vec = (float *)(malloc(width * sizeof(float)));
+    for (int i = 0; i < height * width; i++) {
+        data[i] = limit;
     }
 }
 
@@ -57,9 +53,8 @@ int* LineMandelCalculator::calculateMandelbrot()
             for (int j = 0; j < width; j++) {
     
                 float initial_real = x_start + j * dx;
-                int index = i * width + j;
-                float current_real = current_real_vec[index];
-                float current_img = current_img_vec[index];
+                float current_real = (iter == 0) ? initial_real : current_real_vec[j];
+                float current_img = (iter == 0) ? initial_imag : current_img_vec[j];
 
                 float i2 = current_img * current_img;
                 float r2 = current_real * current_real;
@@ -68,11 +63,11 @@ int* LineMandelCalculator::calculateMandelbrot()
 
                 // update values from the next iteration with values form
                 // current iteration
-                 if ((r2 + i2) > 4.0f && (pdata[index] == limit)) {
-                        pdata[index] = iter;
+                 if ((r2 + i2) > 4.0f && (pdata[i * width + j] == limit)) {
+                        pdata[i * width + j] = iter;
                 } else {
-                    current_img_vec[index] = 2.0f * current_img * current_real + initial_imag;
-                    current_real_vec[index] = r2 - i2 + initial_real;
+                    current_img_vec[j] = 2.0f * current_img * current_real + initial_imag;
+                    current_real_vec[j] = r2 - i2 + initial_real;
                 }
             }
         }

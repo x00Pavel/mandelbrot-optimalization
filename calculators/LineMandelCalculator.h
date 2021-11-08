@@ -16,7 +16,7 @@ class LineMandelCalculator : public BaseMandelCalculator {
 
    private:
     bool gt_4;
-    int *data;
+    int *data __attribute__((aligned(64)));
     float *current_real_vec __attribute__((aligned(64)));
     float *current_img_vec __attribute__((aligned(64)));
 };

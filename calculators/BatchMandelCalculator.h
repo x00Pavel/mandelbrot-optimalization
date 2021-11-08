@@ -18,11 +18,8 @@ public:
     void mandel(int iter, int i, float initial_imag, int blockP, int* pdata);
 
 private:
-    bool gt_4;
-    int block_size;
-    int count_of_blocks;
+    size_t block_size;
     int *data;
-    int **block_pointers __attribute__((aligned(64)));
     float *current_real_vec __attribute__((aligned(64)));
     float *current_img_vec __attribute__((aligned(64)));
 };
