@@ -15,15 +15,14 @@ public:
     BatchMandelCalculator(unsigned matrixBaseSize, unsigned limit);
     ~BatchMandelCalculator();
     int * calculateMandelbrot();
-    void mandel(int iter, int i, float initial_imag, int blockP, int* pdata);
 
-private:
+   private:
     size_t block_size;
     int *data;
-    int *initial_real __attribute__((aligned(64)));
-    int *initial_imag __attribute__((aligned(64)));
-    float *current_real_vec __attribute__((aligned(64)));
-    float *current_img_vec __attribute__((aligned(64)));
+    float *initial_real;
+    float *initial_imag;
+    float *current_real_vec;
+    float *current_img_vec;
 };
 
 #endif
