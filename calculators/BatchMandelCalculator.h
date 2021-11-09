@@ -19,7 +19,7 @@ public:
    private:
     size_t block_size;
     int *data;
-    bool *line_done;
+    float *line_done;
     float *initial_real;
     float *initial_imag;
     float *current_real_vec;
