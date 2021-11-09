@@ -19,8 +19,8 @@ LineMandelCalculator::LineMandelCalculator(unsigned matrixBaseSize,
                                            unsigned limit)
     : BaseMandelCalculator(matrixBaseSize, limit, "LineMandelCalculator") {
     data = (int*)(malloc(height * width * sizeof(int))); // allocate aligned memory
-    initial_real = (int *)(malloc(width * sizeof(int)));
-    initial_imag = (int *)(malloc(height * sizeof(int)));
+    initial_real = (float *)(malloc(width * sizeof(float)));
+    initial_imag = (float *)(malloc(height * sizeof(float)));
     current_real_vec = (float *)(malloc(width * sizeof(float)));
     current_img_vec = (float *)(malloc(width * sizeof(float)));
     int i;
