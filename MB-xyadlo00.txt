@@ -24,11 +24,14 @@ kompilaci jsem nemel, ale ve vysledku kod se provadel scalarne.
 4. Jaká část kódu byla paralizována v "Line" implementaci? Vyčteme tuto 
 informaci i u batch kalkulátoru?
 ==============================================================================
-Line: 
-Batch: 
+Line: 5%
+Batch: 12% (ale to neni core vypocte, jenom pomocna vectorizace)
 
 5. Co vyčteme z Roofline modelu pro obě vektorizované implementace?
 ==============================================================================
-
+Roofline model ukazuje jak moc efektivní nas vypocet vzhledem k hardwearu na 
+kde analizy byla spustena. Nebo, z jineho pohledu, vycteme jak moc kazda
+smycka je optimalni a kolik mame prostoru an jeji optimalizaci vzhledem k 
+omezenim daneho hardwearu.
 
 
