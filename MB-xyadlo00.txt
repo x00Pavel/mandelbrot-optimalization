@@ -2,28 +2,30 @@
 
 1. Proč je nutné určovat, zda má výpočet pokračovat?
 ==============================================================================
-Protoze jinak by hodnoty mohli presahnout sirku datoveho typo pouziteho pro 
-vypocet
+Protoze jinak by hodnoty mohli presahnout sirku datoveho typu pouziteho pro 
+vypocet protoze v kvuli tomu, ze prekroceni hranicy aspon jednim clenem vede 
+polspoupnost k nekonecnu.
 
 2. Byla "Line" vektorizace efektivní? Proč?
 ==============================================================================
-Ano, byla. Protoze operace pro kazdou iteraci byla provadena pomoci vektoru.
-Pomoci toho, ze jsme meli vice dat na jednou (vyhodnoceni podminky i2 + r2 > 4.0f)
-a to pro cely radek, tak mohli jsme urcit je-li vubec zapotreby vypocitat dalsi
-iteraci   
+Ano, byla. Protoze operace pro kazdou iteraci byla provadena pomoci vektoru delkou 
+rovnou sirce matici. A pak, protoze jsme meli vice dat na jednou, vyhodnoceni 
+podminky i2 + r2 > 4.0f mohlo se provadet pro cely radek. Pomoci toho jsme mohli
+urcit pokud vubec ma smysl provadet dalsi iteraci pro cely radek. 
 
 3. Jaká byla dosažena výkonnost v Intel Advisoru pro jednotlivé implementace 
 (v GFLOPS)?
 ==============================================================================
 Ref: 2.23
-Line: 15,66
-Batch: 
+Line: 26.58
+Batch: 24.65 - Nedokazal jsem to sprvane implemntovat. Zadne hlasky behem 
+kompilaci jsem nemel, ale ve vysledku kod se provadel scalarne.
 
 4. Jaká část kódu byla paralizována v "Line" implementaci? Vyčteme tuto 
 informaci i u batch kalkulátoru?
 ==============================================================================
 Line: 
-
+Batch: 
 
 5. Co vyčteme z Roofline modelu pro obě vektorizované implementace?
 ==============================================================================

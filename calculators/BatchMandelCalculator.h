@@ -17,9 +17,7 @@ public:
     int * calculateMandelbrot();
 
    private:
-    size_t block_size;
     int *data;
-    float *line_done;
     float *initial_real;
     float *initial_imag;
     float *current_real_vec;
